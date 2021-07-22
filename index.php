@@ -28,10 +28,14 @@
 	if ($content === false) {
 		$content = file_get_contents("./getTodayCases.json");
 	} else {
-		file_put_contents("./getTodayCases.json", fopen("https://covid19.th-stat.com/json/covid19v2/getTodayCases.json", 'r'));
+		$arrayDecoded = json_decode($content,true);
+		if (count($arrayDecoded) > 9) {
+			file_put_contents("./getTodayCases.json", fopen("https://covid19.th-stat.com/json/covid19v2/getTodayCases.json", 'r'));
+		};
 	};
 	$arrayDecoded = json_decode($content);
 	$todayCases = array($arrayDecoded->NewConfirmed,$arrayDecoded->NewRecovered,$arrayDecoded->NewHospitalized,$arrayDecoded->NewDeaths);
+	//$todayCases = array($arrayDecoded[NewConfirmed],$arrayDecoded[NewRecovered],$arrayDecoded[NewHospitalized],$arrayDecoded[NewDeaths]);
 	$todayCasesDate = $arrayDecoded->UpdateDate;
 	$todayCasesGraphLabel = "'ผู้ป่วยใหม่','ผู้ป่วยที่เข้ารับการรักษา','ผู้ป่วยที่หายแล้ว','เสียชีวิต'";
 	$todayCasesGraphCount = implode(",",$todayCases);
@@ -42,10 +46,21 @@
 	$content = @file_get_contents($url);
 	if ($content === false) {
 		$content = file_get_contents("./getTimeline.json");
+		$arrayDecoded = json_decode($content, true);
 	} else {
-		file_put_contents("./getTimeline.json", fopen("https://covid19.th-stat.com/json/covid19v2/getTimeline.json", 'r'));
+		$arrayDecoded = json_decode($content,true);
+		$content2 = @file_get_contents("./getTimeline.json");
+		if (empty($content2)) {
+			$content2 = '{"Data":[{}]}';
+		};
+		$arrayDecoded2 = json_decode($content2, true);
+			echo count($arrayDecoded["Data"]);
+			echo "<br>";
+			echo count($arrayDecoded2["Data"]);
+		if (count($arrayDecoded["Data"]) > count($arrayDecoded2["Data"])) {
+			file_put_contents("./getTimeline.json", fopen("https://covid19.th-stat.com/json/covid19v2/getTimeline.json", 'r'));
+		};
 	};
-	$arrayDecoded = json_decode($content, true);
 	$daycount = count($arrayDecoded["Data"]);
 	$allCases = $arrayDecoded["Data"];
 	array_splice($allCases,0,$setquantity);
