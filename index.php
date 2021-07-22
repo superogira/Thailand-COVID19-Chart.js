@@ -54,9 +54,6 @@
 			$content2 = '{"Data":[{}]}';
 		};
 		$arrayDecoded2 = json_decode($content2, true);
-			echo count($arrayDecoded["Data"]);
-			echo "<br>";
-			echo count($arrayDecoded2["Data"]);
 		if (count($arrayDecoded["Data"]) > count($arrayDecoded2["Data"])) {
 			file_put_contents("./getTimeline.json", fopen("https://covid19.th-stat.com/json/covid19v2/getTimeline.json", 'r'));
 		};
