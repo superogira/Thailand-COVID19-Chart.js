@@ -4,6 +4,6 @@
 ตัวอย่าง - https://catgg.net/covid19/<br>
 (กรณีที่มีปัญหาติดต่อกับ API ไม่ได้ จะใช้ไฟล์จากที่เซฟเก็บไว้ใน Local จากตอนที่ยังติดต่อ API ได้อยู่แทน)
 <br>
-![alt text](https://catgg.net/github/Thailand-COVID19-Chart.js/Thailand-COVID19-Chart.js-1.jpg)<br>
+![alt text](https://catgg.net/github/Thailand-COVID19-Chart.js/Thailand-COVID19-Chart.js-11.jpg)<br>
 ![alt text](https://catgg.net/github/Thailand-COVID19-Chart.js/Thailand-COVID19-Chart.js-2.jpg)<br>
 ![alt text](https://catgg.net/github/Thailand-COVID19-Chart.js/Thailand-COVID19-Chart.js-3.jpg)<br>
