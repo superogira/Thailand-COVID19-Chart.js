@@ -384,7 +384,13 @@ echo "
 										ticks: {
 											beginAtZero:false,
 											maxTicksLimit: 20,
-											fontSize: 15
+											fontSize: 15,
+											userCallback: function(value, index, values) {
+												value = value.toString();
+												value = value.split(/(?=(?:...)*$)/);
+												value = value.join(',');
+												return value;
+											}
 										},
 										scaleLabel: {
 											display: true,
@@ -550,7 +556,13 @@ echo "
 										ticks: {
 											beginAtZero:false,
 											maxTicksLimit: 20,
-											fontSize: 15
+											fontSize: 15,
+											userCallback: function(value, index, values) {
+												value = value.toString();
+												value = value.split(/(?=(?:...)*$)/);
+												value = value.join(',');
+												return value;
+											}
 										},
 										scaleLabel: {
 											display: true,
