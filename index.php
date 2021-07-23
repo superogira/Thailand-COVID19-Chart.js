@@ -16,32 +16,37 @@
 	date_default_timezone_set("Asia/Bangkok");
 	if (empty($_POST["quantity"])) {
 		$quantity = "";
+		#เริ่มดึงจำนวนข้อมูลตั้งแต่ 1 ม.ค.64
 		$setquantity = "359";
 	} else {
 		$quantity = $_POST["quantity"];
 		$setquantity = "-".$quantity;	
 	};
 	
-	#ข้อมูลประจำวัน
+	#ดึงข้อมูลประจำวัน
 	$url = "https://covid19.th-stat.com/json/covid19v2/getTodayCases.json";
 	$content = @file_get_contents($url);
 	if ($content === false) {
+		#ถ้าดึงข้อมูลจาก API ไม่ได้ ให้ใช้ไฟล์ที่มีอยู่แทน 
 		$content = file_get_contents("./getTodayCases.json");
 	} else {
 		$arrayDecoded = json_decode($content,true);
+		#นับจำนวนข้อมูลจาก API กรณีที่ API ยังส่งข้อมูลปกติอยู่ ก็ให้ Save ข้อมูลมาเก็บสำรองไว้
 		if (count($arrayDecoded) > 9) {
 			file_put_contents("./getTodayCases.json", fopen("https://covid19.th-stat.com/json/covid19v2/getTodayCases.json", 'r'));
 		};
 	};
+	#แปลงข้อมูล JSON จาก API มาเป็น Array
 	$arrayDecoded = json_decode($content);
 	$todayCases = array($arrayDecoded->NewConfirmed,$arrayDecoded->NewRecovered,$arrayDecoded->NewHospitalized,$arrayDecoded->NewDeaths);
 	//$todayCases = array($arrayDecoded[NewConfirmed],$arrayDecoded[NewRecovered],$arrayDecoded[NewHospitalized],$arrayDecoded[NewDeaths]);
 	$todayCasesDate = $arrayDecoded->UpdateDate;
+	#ข้อมูลสำหรับแสดงในกราฟ
 	$todayCasesGraphLabel = "'ผู้ป่วยใหม่','ผู้ป่วยที่เข้ารับการรักษา','ผู้ป่วยที่หายแล้ว','เสียชีวิต'";
 	$todayCasesGraphCount = implode(",",$todayCases);
 	
 	
-	#ข้อมูลทั้งหมด
+	#ดึงข้อมูลทั้งหมด
 	$url = "https://covid19.th-stat.com/json/covid19v2/getTimeline.json";
 	$content = @file_get_contents($url);
 	if ($content === false) {
@@ -50,18 +55,23 @@
 	} else {
 		$arrayDecoded = json_decode($content,true);
 		$content2 = @file_get_contents("./getTimeline.json");
+		#หากโหลดข้อมูลจาก getTimeline.json ไม่ได้ เพราะไฟล์ไม่มีหรือมีปัญหา กำหนด Array ใส่ลงไปแทน แก้ปัญหาเรื่อง error
 		if (empty($content2)) {
 			$content2 = '{"Data":[{}]}';
 		};
 		$arrayDecoded2 = json_decode($content2, true);
+		#หากข้อมูลจาก API มีการอัพเดต มีจำนวนข้อมูลมากกว่าที่ Save เก็บไว้  ก็ให้โหลดข้อมูลมาเก็บสำรองไว้ กรณีที่ API ส่งข้อมูลมาผิดหรือเขาลบไปแล้ว ก็ไม่ต้องกลัวว่าจะถูกข้อมูลเปล่าหรือข้อมูลที่ผิดพลาดมาเขียนทับ
 		if (count($arrayDecoded["Data"]) > count($arrayDecoded2["Data"])) {
 			file_put_contents("./getTimeline.json", fopen("https://covid19.th-stat.com/json/covid19v2/getTimeline.json", 'r'));
 		};
 	};
+	#นับจำนวนข้อมูล ว่ามีจำนวนเท่าไร เพื่อบอกที่หน้าเว็บว่าสามารถเรียกดูได้สูงสุดกี่วัน
 	$daycount = count($arrayDecoded["Data"]);
+	#หั่นข้อมูลออก ให้เหลือตามจำนวนที่กำหนดให้แสดงผล
 	$allCases = $arrayDecoded["Data"];
 	array_splice($allCases,0,$setquantity);
 	
+	#แยกข้อมูลแต่ละวัน เพื่อไปใช้แสดงในกราฟ
 	$date = array();
 	$newConfirmed = array();
 	$newRecovered = array();
@@ -76,6 +86,7 @@
 		$date[] = $each["Date"];
 		$newConfirmed[] = $each["NewConfirmed"];
 		$newRecovered[] = $each["NewRecovered"];
+		#ข้อมูล NewHospitalized มักมีข้อมูลติดลบ แก้กลับมาเป็นข้อมูลปกติ
 		if ($each["NewHospitalized"] < 0) {
 			$each["NewHospitalized"] = $each["NewHospitalized"] * -1;
 		};
@@ -87,6 +98,7 @@
 		$deaths[] = $each["Deaths"];
 	};
 	
+	#แปลงข้อมูลที่แยกไว้ เพื่อใช้กับ Chart.js
 	$graphDate = json_encode($date);
 	$graphNewConfirmed = implode(",",$newConfirmed);
 	$graphNewRecovered = implode(",",$newRecovered);
